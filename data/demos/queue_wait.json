@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "seed": null,
+  "config": {
+    "workers": null,
+    "dynamic_rescheduling": true,
+    "preemptive": false,
+    "banker_enabled": true,
+    "deadlock_detection": true,
+    "deadlock_recovery": true,
+    "max_time": 40,
+    "detection_period": 1,
+    "policy": "priority"
+  },
+  "resources": {
+    "tea_table": {"capacity": 1, "shared": false, "blocked_until": 0}
+  },
+  "tasks": [
+    {
+      "task_id": "Q1",
+      "name": "首个整理者",
+      "priority": 1,
+      "deadline": 20,
+      "duration": 4,
+      "dependencies": [],
+      "resources": {"tea_table": 1},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 0,
+      "stages": [],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    },
+    {
+      "task_id": "Q2",
+      "name": "排队第 1 位（截止最早）",
+      "priority": 1,
+      "deadline": 25,
+      "duration": 4,
+      "dependencies": [],
+      "resources": {"tea_table": 1},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 1,
+      "stages": [],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    },
+    {
+      "task_id": "Q3",
+      "name": "排队第 2 位",
+      "priority": 1,
+      "deadline": 30,
+      "duration": 3,
+      "dependencies": [],
+      "resources": {"tea_table": 1},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 2,
+      "stages": [],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    },
+    {
+      "task_id": "Q4",
+      "name": "排队第 3 位（截止最松）",
+      "priority": 1,
+      "deadline": 35,
+      "duration": 2,
+      "dependencies": [],
+      "resources": {"tea_table": 1},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 3,
+      "stages": [],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    }
+  ],
+  "events": []
+}

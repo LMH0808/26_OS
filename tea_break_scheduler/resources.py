@@ -75,3 +75,85 @@ class ResourceManager:
             held.pop(name, None)
         if not held:
             self.allocation.pop(task_id, None)
+
+    @staticmethod
+    def _is_positive(amount) -> bool:
+        # 占用量必须是正整数；坏数据只记录问题，不让它中断 audit()。
+        return isinstance(amount, int) and not isinstance(amount, bool) and amount > 0
+
+    def holders(self, name: str) -> tuple[str, ...]:
+        """当前占用该资源的所有 task_id，按 task_id 排序后返回。"""
+        return tuple(sorted(
+            task_id for task_id, held in self.allocation.items()
+            if isinstance(held, dict) and self._is_positive(held.get(name, 0))
+        ))
+
+    def held_by(self, task_id: str) -> tuple[str, ...]:
+        """该任务当前占用的所有资源名，按名称排序后返回。"""
+        held = self.allocation.get(task_id, {})
+        if not isinstance(held, dict):
+            return ()
+        return tuple(sorted(
+            name for name, amount in held.items() if self._is_positive(amount)
+        ))
+
+    def audit(self, tasks=None) -> list[str]:
+        """账目一致性自检：返回问题描述列表，尽可能列齐全部问题且不抛异常。
+
+        tasks=None 时只核对账本内部：占用数为正、无未声明资源、各资源占用总量不超容量；
+        传入任务集合时额外交叉核对未到达 / 已完成 / 已撤销任务是否仍持有互斥资源。
+        """
+        problems: list[str] = []
+        totals: dict[str, int] = {}
+        for task_id, held in self.allocation.items():
+            if not isinstance(held, dict):
+                problems.append(f"任务 {task_id} 的占用记录不是资源字典")
+                continue
+            for name, amount in held.items():
+                resource = self.resources.get(name)
+                if resource is None:
+                    problems.append(f"任务 {task_id} 占用未声明资源 {name}")
+                    continue
+                if not self._is_positive(amount):
+                    problems.append(f"任务 {task_id} 对资源 {name} 的占用数非正: {amount!r}")
+                    continue
+                if resource.shared:
+                    problems.append(f"任务 {task_id} 将共享资源 {name} 计入互斥占用账本")
+                    continue
+                totals[name] = totals.get(name, 0) + amount
+        for name, total in sorted(totals.items()):
+            capacity = self.resources[name].capacity
+            if total > capacity:
+                problems.append(f"资源 {name} 占用总量 {total} 超过容量 {capacity}")
+
+        if tasks is None:
+            return problems
+
+        # Scheduler.tasks 是 {task_id: Task}，也允许直接传 Task 列表/元组。
+        try:
+            candidates = tasks.values() if isinstance(tasks, dict) else iter(tasks)
+        except TypeError:
+            return problems
+        # TaskState 是 str 枚举，用 value 归一化后同时兼容枚举与纯字符串状态。
+        inactive = {"pending": "未到达", "completed": "已完成", "cancelled": "已撤销"}
+        for task in candidates:
+            task_id = getattr(task, "task_id", None)
+            if task_id is None:
+                continue
+            state = getattr(task, "state", None)
+            label = inactive.get(getattr(state, "value", state))
+            if label is None:
+                continue
+            held = self.allocation.get(task_id, {})
+            if not isinstance(held, dict):
+                continue
+            owned = sorted(
+                name for name, amount in held.items()
+                if self._is_positive(amount)
+                and (self.resources.get(name) is None or not self.resources[name].shared)
+            )
+            if owned:
+                problems.append(
+                    f"任务 {task_id} 状态 {label} 仍持有互斥资源: {', '.join(owned)}"
+                )
+        return problems
