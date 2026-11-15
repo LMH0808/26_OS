@@ -82,3 +82,19 @@ result = scheduler.run(progress_callback=None)
 单场景返回 `scenario/label/result/snapshots`。每个快照含 `time/tasks/resources/events/metrics`，只展示已到达任务；任务额外含 `stage_name/held_resources/waiting_request`；资源含 `capacity/shared/available/blocked_until/holders`。`available=0` 可能由故障造成，不代表一定有人占用；网页占用量从 `holders` 计算。
 
 服务一次性计算快照，浏览器按速度回放。页面上的“运行中”是模拟时钟播放状态；这不是硬件遥测。输入体限 1 MB；非法 JSON、场景名或对象形状返回 400；静态资源使用白名单。
+
+## 项目说明书目录映射（王晶莹负责部分）
+
+本仓库沿用现有项目包结构，以下路径与项目说明书第 14 节规划的交付路径等价：
+
+| 项目说明书规划路径 | 本仓库实际路径 | 说明 |
+|---|---|---|
+| `src/metrics.py` | `tea_break_scheduler/metrics.py` | 统计指标数据结构与指标输出 |
+| `data/experiments/` | `experiments/workloads.py`、`experiments/results/inputs/` | 生成实验负载，并保存每个种子的输入任务、资源和事件 |
+| `experiments/run_experiments.py` | `experiments/run_experiments.py` | 批量运行配对实验 |
+| `experiments/summarize.py` | `experiments/summarize.py` | 汇总均值、标准差并生成静态图表 |
+| `experiments/results/` | `experiments/results/` | 保存原始运行记录、配置、输入快照和汇总结果 |
+| `experiments/figures/` | `experiments/figures/` | 保存可由汇总脚本重新生成的实验图表 |
+| `docs/experiment_plan.md` | `docs/experiment_plan.md` | 实验设计、变量控制与配对方法 |
+
+上述为目录组织上的等价映射，不改变模块职责和实验数据定义。
