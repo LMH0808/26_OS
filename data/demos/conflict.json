@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "seed": null,
+  "config": {
+    "workers": null,
+    "dynamic_rescheduling": true,
+    "preemptive": false,
+    "banker_enabled": true,
+    "deadlock_detection": true,
+    "deadlock_recovery": true,
+    "max_time": 20,
+    "detection_period": 1,
+    "policy": "priority"
+  },
+  "resources": {
+    "tea_table": {"capacity": 1, "shared": false, "blocked_until": 0}
+  },
+  "tasks": [
+    {
+      "task_id": "C1",
+      "name": "占用台面整理",
+      "priority": 2,
+      "deadline": 14,
+      "duration": 3,
+      "dependencies": [],
+      "resources": {},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 0,
+      "stages": [
+        {
+          "name": "整理台面",
+          "duration": 3,
+          "resources": {"tea_table": 1},
+          "release_resources": ["tea_table"],
+          "preemptible": false
+        }
+      ],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    },
+    {
+      "task_id": "C2",
+      "name": "同时申请台面",
+      "priority": 1,
+      "deadline": 14,
+      "duration": 2,
+      "dependencies": [],
+      "resources": {},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 1,
+      "stages": [
+        {
+          "name": "整理台面",
+          "duration": 2,
+          "resources": {"tea_table": 1},
+          "release_resources": ["tea_table"],
+          "preemptible": false
+        }
+      ],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    }
+  ],
+  "events": []
+}

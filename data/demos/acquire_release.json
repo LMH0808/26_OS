@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "seed": null,
+  "config": {
+    "workers": null,
+    "dynamic_rescheduling": true,
+    "preemptive": false,
+    "banker_enabled": true,
+    "deadlock_detection": true,
+    "deadlock_recovery": true,
+    "max_time": 20,
+    "detection_period": 1,
+    "policy": "priority"
+  },
+  "resources": {
+    "tea_table": {"capacity": 1, "shared": false, "blocked_until": 0},
+    "cup_station": {"capacity": 1, "shared": false, "blocked_until": 0},
+    "corridor": {"capacity": 1, "shared": false, "blocked_until": 0}
+  },
+  "tasks": [
+    {
+      "task_id": "N1",
+      "name": "整理茶歇台",
+      "priority": 1,
+      "deadline": 12,
+      "duration": 4,
+      "dependencies": [],
+      "resources": {},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 0,
+      "stages": [
+        {
+          "name": "整理台面",
+          "duration": 4,
+          "resources": {"tea_table": 1},
+          "release_resources": ["tea_table"],
+          "preemptible": false
+        }
+      ],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    },
+    {
+      "task_id": "N2",
+      "name": "递送水杯",
+      "priority": 2,
+      "deadline": 12,
+      "duration": 4,
+      "dependencies": [],
+      "resources": {},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 0,
+      "stages": [
+        {
+          "name": "取杯",
+          "duration": 2,
+          "resources": {"cup_station": 1},
+          "release_resources": ["cup_station"],
+          "preemptible": false
+        },
+        {
+          "name": "通道配送",
+          "duration": 2,
+          "resources": {"corridor": 1},
+          "release_resources": ["corridor"],
+          "preemptible": false
+        }
+      ],
+      "max_claim": {"cup_station": 1, "corridor": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "delivery"
+    }
+  ],
+  "events": []
+}

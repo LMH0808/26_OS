@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "seed": null,
+  "config": {
+    "workers": null,
+    "dynamic_rescheduling": true,
+    "preemptive": false,
+    "banker_enabled": true,
+    "deadlock_detection": true,
+    "deadlock_recovery": true,
+    "max_time": 30,
+    "detection_period": 1,
+    "policy": "priority"
+  },
+  "resources": {
+    "tea_table": {"capacity": 1, "shared": false, "blocked_until": 0}
+  },
+  "tasks": [
+    {
+      "task_id": "F1",
+      "name": "长时整理（执行中遇台面暂停）",
+      "priority": 2,
+      "deadline": 20,
+      "duration": 6,
+      "dependencies": [],
+      "resources": {"tea_table": 1},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 0,
+      "stages": [],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    },
+    {
+      "task_id": "F2",
+      "name": "短时整理（故障期间申请被拒）",
+      "priority": 1,
+      "deadline": 25,
+      "duration": 1,
+      "dependencies": [],
+      "resources": {"tea_table": 1},
+      "preemptible": false,
+      "urgent": false,
+      "submitted_at": 1,
+      "stages": [],
+      "max_claim": {"tea_table": 1},
+      "rollback_allowed": false,
+      "max_retries": 3,
+      "task_type": "maintenance"
+    }
+  ],
+  "events": [
+    {
+      "at": 2,
+      "kind": "environment",
+      "description": "茶歇台临时清洁，暂停 3 个时间单位",
+      "resource": "tea_table",
+      "duration": 3
+    }
+  ]
+}
