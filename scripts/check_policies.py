@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """排序验证案例运行入口（李铭昊，对应项目说明 13.3）。
 
-流程：人工先把 steps 和 expected 写进 data/demos/policies_cases.json，
+流程：人工先把 steps 和 expected 写进 data/policies_cases.json，
 再运行本脚本比对。脚本只读用例文件，不回写 expected。
 
 用法（仓库根目录）：
@@ -25,7 +25,7 @@ if str(ROOT) not in sys.path:
 from tea_break_scheduler.models import task_from_dict  # noqa: E402
 from tea_break_scheduler.policies import rank_tasks  # noqa: E402
 
-CASES_PATH = ROOT / "data" / "demos" / "policies_cases.json"
+CASES_PATH = ROOT / "data" / "policies_cases.json"
 
 
 def fmt(order) -> str:
