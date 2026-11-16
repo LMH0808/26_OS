@@ -39,14 +39,15 @@ def explain(task: Task, runner_up: Task | None, policy: str) -> str:
             return f"到达更早（{task.submitted_at} < {runner_up.submitted_at}）"
         return f"同到达时间，按任务编号先后（{task.task_id} < {runner_up.task_id}）"
 
-    urgent = "紧急任务优先；" if task.urgent and not runner_up.urgent else ""
+    # 理由只描述实际决定顺序的字段（priority / deadline / submitted_at / task_id）。
+    # urgent 不在排序键里，不能出现在理由中，否则会让人误以为它影响排序。
     if task.priority != runner_up.priority:
-        return urgent + f"优先级更高（{task.priority} > {runner_up.priority}）"
+        return f"优先级更高（{task.priority} > {runner_up.priority}）"
     if task.deadline != runner_up.deadline:
-        return urgent + f"同优先级，截止时间更早（{task.deadline} < {runner_up.deadline}）"
+        return f"同优先级，截止时间更早（{task.deadline} < {runner_up.deadline}）"
     if task.submitted_at != runner_up.submitted_at:
-        return urgent + f"同优先级、同截止时间，到达更早（{task.submitted_at} < {runner_up.submitted_at}）"
-    return urgent + f"同优先级、同截止时间、同到达时间，按任务编号（{task.task_id} < {runner_up.task_id}）"
+        return f"同优先级、同截止时间，到达更早（{task.submitted_at} < {runner_up.submitted_at}）"
+    return f"同优先级、同截止时间、同到达时间，按任务编号（{task.task_id} < {runner_up.task_id}）"
 
 
 def rank_tasks(tasks: list[Task], policy: str) -> list[tuple[Task, str]]:
