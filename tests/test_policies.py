@@ -25,7 +25,7 @@ from tea_break_scheduler.policies import (
     selection_reason,
 )
 
-CASES_PATH = Path(__file__).resolve().parents[1] / "data" / "demos" / "policies_cases.json"
+CASES_PATH = Path(__file__).resolve().parents[1] / "data" / "policies_cases.json"
 
 
 def make(task_id: str, priority: int = 1, deadline: int = 20, submitted: int = 0, urgent: bool = False) -> Task:
@@ -95,12 +95,13 @@ class InterfaceTests(unittest.TestCase):
         self.assertEqual([t.task_id for t in order_tasks(tasks, PRIORITY)], [t.task_id for t, _ in ranked])
         self.assertEqual(len(tasks), len(ranked))
 
-    def test_reason_explains_urgent_and_tie_break(self) -> None:
+    def test_reason_only_mentions_key_fields(self) -> None:
+        # urgent 不在排序键里，理由中不得出现"紧急任务优先"这类非键字段的表述。
         tasks = [make("a", priority=2, deadline=10), make("b", priority=3, deadline=10, urgent=True)]
         ranked = rank_tasks(tasks, PRIORITY)
         self.assertEqual("b", ranked[0][0].task_id)
-        self.assertIn("紧急任务优先", ranked[0][1])
         self.assertIn("优先级更高", ranked[0][1])
+        self.assertNotIn("紧急", ranked[0][1])
 
     def test_reason_for_tied_priority_mentions_deadline(self) -> None:
         earlier = make("early", priority=1, deadline=20)
@@ -127,7 +128,7 @@ class InterfaceTests(unittest.TestCase):
 
 
 class CaseFileTests(unittest.TestCase):
-    """data/demos/policies_cases.json 里预先登记的预期顺序必须与程序输出一致。"""
+    """data/policies_cases.json 里预先登记的预期顺序必须与程序输出一致。"""
 
     def test_all_cases(self) -> None:
         with CASES_PATH.open("r", encoding="utf-8") as handle:
